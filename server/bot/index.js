@@ -1,7 +1,7 @@
-import "secret.js"
+import 'dotenv/config';
 
-const { Client, GatewayIntentBits } = require('discord.js');
-const { google } = require('googleapis');
+import { Client, GatewayIntentBits } from 'discord.js';
+import { google } from 'googleapis';
 
 const client = new Client({ 
     intents: [
@@ -22,28 +22,18 @@ const auth = new google.auth.GoogleAuth({
 });
 
 
+const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
 
+function conversion(content){
 
-client.on('messageCreate', async message => {
-    if (message.author.bot) return;
-
-    const texte = message.content;
-
-    if (texte === '!ping') {
-        message.reply('Pong !');
-    }
-
-    if(texte === '!wltjosephine'){
-        const reponse = "Bonjour je suis Joséphine, voici ma liste de commande : \n - !ping : un classique 🏓 \n - !wlt : présentation du groupe 🧑‍💻👩‍💻🧑‍💻\n- !wltsee : consulter un emploi du temps \n - !wltchange : modifier un emploi du temps \n - !wlttevin : crise existentielle 💥\n - !wltsebastian : ??? \n - !wltjulie : barbie 💅 \n - !wltkarim : (boss) \n - !wltclac : surprise\n";
-        return message.reply(reponse);
-    }
-
-    
-
-    const element = texte.split(' ').filter(mot => mot.length > 0).slice(2); 
+    const element = content.split(' ').filter(mot => mot.length > 0).slice(2); 
 
     const jourInput = element[0]; 
     const heureInput = element[1]
+
+    if (!jourInput || !heureInput) {
+        return message.reply("Il manque le jour ou l'heure !");
+    }
 
     const conversionJour = {
         'lundi': 'B',
@@ -69,15 +59,67 @@ client.on('messageCreate', async message => {
     const colonne = conversionJour[jourInput.toLowerCase()] || jourInput;
     const ligne = conversionHeure[heureInput.toLowerCase()] || heureInput;
 
-    if (texte.startsWith('!wltsee')) {
-        if (!jourInput || !heureInput) {
-            return message.reply("Il manque le jour ou l'heure !");
+    if(!element[2]){
+        return [colonne, ligne];
+    }
+    else{
+        return [colonne, ligne, element[2]];
+    }
+}
+
+client.on('messageCreate', async message => {
+    if (message.author.bot) return;
+
+    const texte = message.content;
+
+    if (texte === '!ping') {
+        return message.reply('Pong !');
+    }
+
+    else if(texte === '!wltjosephine'){
+        const reponse = "Bonjour je suis Joséphine, voici ma liste de commande : \n - !ping : un classique 🏓 \n - !wlt : présentation du groupe 🧑‍💻👩‍💻🧑‍💻\n- !wltsee : consulter un emploi du temps 🔎🗓️\n - !wltchange : modifier un emploi du temps ✍️🗓️\n - !wlttevin : 💥\n - !wltsebastian : 🔥 \n - !wltjulie : 💅 \n - !wltkarim : 🕶️  \n - !wltclac : ✨\n";
+        return message.reply(reponse);
+    }
+
+    else if(texte === '!wlt'){
+        const reponse = "Notre groupe est composé de :\n - **Julie Tillet** : !wltjulie \n - **Tévin Wincenty** : !wlttevin \n - **Sebastian Lovejoy Black** : !wltsebastian\n\nNous espérons que notre projet vous plaîra.\nPour plus d'informations, tapez la commande *!wltjosephine*.";
+        return message.reply(reponse);
+    }
+
+    else if(texte === '!wlttevin'){
+        for (let i = 0; i < 15; i++) {
+            message.reply("https://tenor.com/view/tester-opossum-gif-21527300");
         }
+        return;
+    }
+
+    else if(texte ==='!wltjulie'){
+        return message.reply("https://tenor.com/view/barbie-pink-gif-25419193");
+    }
+
+    else if(texte === '!wltsebastian'){
+        return message.reply("https://tenor.com/view/top-gear-the-grand-tour-gif-24931916");
+    }
+
+    else if(texte === '!wltkarim'){
+        return message.reply("Bon courage pour la correction\nhttps://tenor.com/view/dance-moves-gif-9472470858311093882");
+    }
+
+    else if(texte === '!wltclac'){
+        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+        await message.reply("https://tenor.com/view/jos%C3%A9phine-josephine-ange-gardien-jos%C3%A9phine-ange-gardien-josephine-ange-gardien-gif-14545491245469233366\nJoséphine a quitté le serveur.");
+        await sleep(3000);
+        await message.channel.send("Joséphine a rejoint le groupe.");
+    }
+
+    else if (texte.startsWith('!wltsee')) {
 
         const mention = message.mentions.users.first();
         if (!mention) {
             return message.reply("Mentionner quelqu'un !");
         }
+
+        const cl = conversion(texte);
 
         try {
             const sheets = google.sheets({ version: 'v4', auth });
@@ -96,7 +138,7 @@ client.on('messageCreate', async message => {
 
             const nomFeuille = sheetFound.properties.title;
 
-            const monRange = `${nomFeuille}!${colonne}${ligne}`;
+            const monRange = `${nomFeuille}!${cl[0]}${cl[1]}`;
 
             const res = await sheets.spreadsheets.values.get({
                 spreadsheetId: SPREADSHEET_ID,
@@ -121,16 +163,15 @@ client.on('messageCreate', async message => {
         }
     }
 
-    if(texte.startsWith('!wltchange')){
-        if (!jourInput || !heureInput) {
-            return message.reply("Il manque le jour ou l'heure !");
-        }
+    else if(texte.startsWith('!wltchange')){
 
-        const contenu = element[2];
         const mention = message.mentions.users.first();
+
         if (!mention) {
             return message.reply("Mentionner quelqu'un !");
         }
+
+        const clc = conversion(texte);
 
         try {
             const sheets = google.sheets({ version: 'v4', auth });
@@ -149,7 +190,8 @@ client.on('messageCreate', async message => {
 
             const nomFeuille = sheetFound.properties.title;
 
-            const monRange = `${nomFeuille}!${colonne}${ligne}`;
+            const monRange = `${nomFeuille}!${clc[0]}${clc[1]}`;
+
             await sheets.spreadsheets.values.clear({
                 spreadsheetId: SPREADSHEET_ID,
                 range: monRange,
@@ -161,7 +203,7 @@ client.on('messageCreate', async message => {
                 valueInputOption: 'USER_ENTERED',
                 resource: {
                     values: [
-                        [contenu] 
+                        [clc[2]] 
                     ],
                 },
             });
@@ -174,5 +216,10 @@ client.on('messageCreate', async message => {
             message.reply('Je n\'ai pas réussi à accéder au fichier Google ou es données sont invalides.');
         }
     }
+    else{
+        return;
+    }
 
 });
+
+client.login(process.env.LOGIN);

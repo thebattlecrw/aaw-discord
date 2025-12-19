@@ -14,7 +14,7 @@ dist-ssr
 *.local
 
 server/bot/google.json
-server/bot/secret.js
+.env
 
 # Editor directories and files
 .vscode/*
