@@ -71,50 +71,38 @@ client.on('messageCreate', async message => {
     if (message.author.bot) return;
 
     const texte = message.content;
-
-    if (texte === '!ping') {
-        return message.reply('Pong !');
+    let reponse = "";
+    let mention;
+    switch(texte){
+        case '!ping' :
+            return message.reply('Pong !');
+        case '!wltjosephine' : 
+            reponse = "Bonjour je suis Joséphine, voici ma liste de commande : \n - !ping : un classique 🏓 \n - !wlt : présentation du groupe 🧑‍💻👩‍💻🧑‍💻\n- !wltsee : consulter un emploi du temps 🔎🗓️\n - !wltchange : modifier un emploi du temps ✍️🗓️\n - !wlttevin : 💥\n - !wltsebastian : 🔥 \n - !wltjulie : 💅 \n - !wltkarim : 🕶️  \n - !wltclac : ✨\n";
+            return message.reply(reponse);
+        case '!wlt' :
+            reponse = "Notre groupe est composé de :\n - **Julie Tillet** : !wltjulie \n - **Tévin Wincenty** : !wlttevin \n - **Sebastian Lovejoy Black** : !wltsebastian\n\nNous espérons que notre projet vous plaîra.\nPour plus d'informations, tapez la commande *!wltjosephine*.";
+            return message.reply(reponse);
+        case '!wlttevin' :
+            for (let i = 0; i < 15; i++) {
+                message.reply("https://tenor.com/view/tester-opossum-gif-21527300");
+            }
+            return;
+        case '!wltjulie' :
+            return message.reply("https://tenor.com/view/barbie-pink-gif-25419193");
+        case '!wltsebastian' :
+            return message.reply("https://tenor.com/view/top-gear-the-grand-tour-gif-24931916");
+        case '!wltkarim' :
+            return message.reply("Bon courage pour la correction\nhttps://tenor.com/view/dance-moves-gif-9472470858311093882");
+        case '!wltclac' :
+            const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+            await message.reply("https://tenor.com/view/jos%C3%A9phine-josephine-ange-gardien-jos%C3%A9phine-ange-gardien-josephine-ange-gardien-gif-14545491245469233366\nJoséphine a quitté le serveur.");
+            await sleep(3000);
+            await message.channel.send("Joséphine a rejoint le groupe.");
+            return;
     }
 
-    else if(texte === '!wltjosephine'){
-        const reponse = "Bonjour je suis Joséphine, voici ma liste de commande : \n - !ping : un classique 🏓 \n - !wlt : présentation du groupe 🧑‍💻👩‍💻🧑‍💻\n- !wltsee : consulter un emploi du temps 🔎🗓️\n - !wltchange : modifier un emploi du temps ✍️🗓️\n - !wlttevin : 💥\n - !wltsebastian : 🔥 \n - !wltjulie : 💅 \n - !wltkarim : 🕶️  \n - !wltclac : ✨\n";
-        return message.reply(reponse);
-    }
-
-    else if(texte === '!wlt'){
-        const reponse = "Notre groupe est composé de :\n - **Julie Tillet** : !wltjulie \n - **Tévin Wincenty** : !wlttevin \n - **Sebastian Lovejoy Black** : !wltsebastian\n\nNous espérons que notre projet vous plaîra.\nPour plus d'informations, tapez la commande *!wltjosephine*.";
-        return message.reply(reponse);
-    }
-
-    else if(texte === '!wlttevin'){
-        for (let i = 0; i < 15; i++) {
-            message.reply("https://tenor.com/view/tester-opossum-gif-21527300");
-        }
-        return;
-    }
-
-    else if(texte ==='!wltjulie'){
-        return message.reply("https://tenor.com/view/barbie-pink-gif-25419193");
-    }
-
-    else if(texte === '!wltsebastian'){
-        return message.reply("https://tenor.com/view/top-gear-the-grand-tour-gif-24931916");
-    }
-
-    else if(texte === '!wltkarim'){
-        return message.reply("Bon courage pour la correction\nhttps://tenor.com/view/dance-moves-gif-9472470858311093882");
-    }
-
-    else if(texte === '!wltclac'){
-        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-        await message.reply("https://tenor.com/view/jos%C3%A9phine-josephine-ange-gardien-jos%C3%A9phine-ange-gardien-josephine-ange-gardien-gif-14545491245469233366\nJoséphine a quitté le serveur.");
-        await sleep(3000);
-        await message.channel.send("Joséphine a rejoint le groupe.");
-    }
-
-    else if (texte.startsWith('!wltsee')) {
-
-        const mention = message.mentions.users.first();
+    if(texte.startsWith('!wltsee')){
+        mention = message.mentions.users.first();
         if (!mention) {
             return message.reply("Mentionner quelqu'un !");
         }
@@ -161,11 +149,10 @@ client.on('messageCreate', async message => {
             console.error(error);
             message.reply('Je n\'ai pas réussi à accéder au fichier Google ou les données sont invalides.');
         }
-    }
+    }   
 
     else if(texte.startsWith('!wltchange')){
-
-        const mention = message.mentions.users.first();
+        mention = message.mentions.users.first();
 
         if (!mention) {
             return message.reply("Mentionner quelqu'un !");
@@ -219,7 +206,6 @@ client.on('messageCreate', async message => {
     else{
         return;
     }
-
 });
 
 client.login(process.env.LOGIN);
